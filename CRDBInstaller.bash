@@ -1,6 +1,6 @@
 # Replace VERSION (e.g., v26.4.0 or v26.2.12) and ARCH (linux-amd64 or linux-arm64)
 VERSION="v26.4.0"
-ARCH="linux-amd64"
+ARCH="linux-arm64"
 
 curl -O https://cockroachdb.com{VERSION}.${ARCH}.tgz
 tar -xzf cockroach-${VERSION}.${ARCH}.tgz
