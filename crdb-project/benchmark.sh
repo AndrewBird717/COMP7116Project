@@ -6,7 +6,8 @@ k=(kubectl --context crdb-lab -n crdb-lab)
 url='postgresql://root@cockroachdb-public:26257?sslmode=disable'
 case "${1:-}" in
   init)
-    "${k[@]}" exec workload -- /cockroach/cockroach workload init tpcc --warehouses="$WAREHOUSES" "$url"
+    "${k[@]}" exec workload -- /cockroach/cockroach workload init tpcc --data-loader=INSERT \
+    --init-conns=2 --warehouses="$WAREHOUSES" "$url"
     ;;
   run)
     name=${2:-baseline}
