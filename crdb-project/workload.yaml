@@ -1,0 +1,12 @@
+# Client only: this pod never starts a database server.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workload
+  labels:
+    app: tpcc-workload
+spec:
+  containers:
+    - name: workload
+      image: cockroachdb/cockroach:v24.3.0
+      command: ["sleep", "infinity"]

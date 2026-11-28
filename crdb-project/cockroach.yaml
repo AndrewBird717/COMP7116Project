@@ -1,0 +1,79 @@
+# Stable DNS for database peers, including before initialization.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: cockroachdb
+  ports:
+    - name: sql
+      port: 26257
+---
+# Client endpoint (internal to Kubernetes).
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb-public
+spec:
+  selector:
+    app: cockroachdb
+  ports:
+    - name: sql
+      port: 26257
+    - name: http
+      port: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cockroachdb
+spec:
+  serviceName: cockroachdb
+  replicas: 12 # Change this for a fresh cluster; minimum 3 for this lab.
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: cockroachdb
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      containers:
+        - name: cockroachdb
+          image: cockroachdb/cockroach:v24.3.0
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              exec /cockroach/cockroach start \
+                --insecure \
+                --listen-addr=0.0.0.0:26257 \
+                --advertise-addr=${HOSTNAME}.cockroachdb:26257 \
+                --http-addr=0.0.0.0:8080 \
+                --join=cockroachdb-0.cockroachdb:26257,cockroachdb-1.cockroachdb:26257,cockroachdb-2.cockroachdb:26257 \
+                --store=/cockroach/data \
+                --cache=128MiB \
+                --max-sql-memory=512MiB
+          ports:
+            - containerPort: 26257
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health?ready=1
+              port: 8080
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /cockroach/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 5Gi

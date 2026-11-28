@@ -1,0 +1,23 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-latency
+spec:
+  action: delay
+  mode: all
+  selector:
+    pods:
+      crdb-lab:
+        - cockroachdb-0
+  direction: both
+  target:
+    mode: all
+    selector:
+      pods:
+        crdb-lab:
+          - cockroachdb-1
+          - cockroachdb-2
+  delay:
+    latency: "100ms"
+    jitter: "0ms"
+  duration: "60s"
