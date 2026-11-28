@@ -7,7 +7,7 @@ url='postgresql://root@cockroachdb-public:26257?sslmode=disable'
 case "${1:-}" in
   init)
     "${k[@]}" exec workload -- /cockroach/cockroach workload init tpcc --data-loader=INSERT \
-    --init-conns=2 --warehouses="$WAREHOUSES" "$url"
+    --init-conns=2 --drop --warehouses="$WAREHOUSES" "$url"
     ;;
   run)
     name=${2:-baseline}
