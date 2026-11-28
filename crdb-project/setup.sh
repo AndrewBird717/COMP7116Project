@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 for cmd in docker minikube kubectl helm; do command -v "$cmd" >/dev/null || { echo "Install $cmd first"; exit 1; }; done
-minikube start -p crdb-lab --driver=docker --container-runtime=containerd --cpus="${CPUS:-4}" --memory="${MEMORY_MB:-6144}"
+minikube start -p crdb-lab --driver=docker --container-runtime=containerd --cpus="${CPUS:-6}" --memory="${MEMORY_MB:-8192}"
 k=(kubectl --context crdb-lab -n crdb-lab)
 if "${k[@]}" get statefulset cockroachdb >/dev/null 2>&1; then
   echo 'Database already exists; use README resume instructions, not setup.sh.'; exit 1
